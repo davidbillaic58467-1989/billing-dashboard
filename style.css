@@ -372,7 +372,7 @@ html[data-theme="light"] .moon-icon { display: block; }
   border: 1px solid var(--surface-border);
   background: rgba(0, 0, 0, 0.15);
   color: var(--text-main);
-  font-size: 0.95rem; /* Touch targets standard */
+  font-size: 0.95rem;
   outline: none;
   transition: var(--transition-smooth);
 }
@@ -393,7 +393,7 @@ html[data-theme="light"] .form-group select {
   opacity: 0.6;
 }
 
-/* Discount HUD (Displaying instant savings during editing) */
+/* Discount HUD */
 .discount-hud {
   margin: 14px 0;
   padding: 12px 14px;
@@ -612,7 +612,7 @@ html[data-theme="light"] .form-group select {
   color: var(--sheet-text);
   font-family: var(--font-sans);
   width: 100%;
-  min-width: 660px; /* Kept layout constraints neat on small screens */
+  min-width: 660px;
   min-height: 930px;
   padding: 44px;
   box-sizing: border-box;
@@ -635,7 +635,7 @@ html[data-theme="light"] .form-group select {
 }
 
 .inv-brand-circle {
-  background: #0f172a; /* Royal Dark Slate */
+  background: #0f172a;
   color: var(--emerald-400);
   width: 48px;
   height: 48px;
@@ -759,13 +759,13 @@ html[data-theme="light"] .form-group select {
   justify-content: space-between;
   align-items: flex-start;
   gap: 24px;
-  margin-top: auto; /* Push it towards the bottom of sheet */
+  margin-top: auto;
   padding-top: 20px;
 }
 
 /* Client Savings Notification inside invoice */
 .savings-alert-box {
-  background: #ecfdf5; /* Emerald-50 light */
+  background: #ecfdf5;
   border: 1px solid #a7f3d0;
   border-radius: 8px;
   padding: 10px 16px;
@@ -880,7 +880,7 @@ html[data-theme="light"] .form-group select {
    Android Sticky Bottom Navigation (Mobile Tab bar)
    ========================================================================== */
 .mobile-nav-bar {
-  display: none; /* Hidden on large devices by default */
+  display: none;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -995,7 +995,6 @@ html[data-theme="light"] .form-group select {
   }
 }
 
-/* Newly added item table transition row */
 @keyframes fadeInRow {
   from {
     opacity: 0;
@@ -1039,10 +1038,9 @@ html[data-theme="light"] .form-group select {
     gap: 6px;
   }
 
-  /* Grid turns into single stacked column with buffer for sticky tab bar */
   .dashboard-grid {
     grid-template-columns: 1fr;
-    padding-bottom: 74px; /* Room for sticky mobile bottom navigation bar */
+    padding-bottom: 74px;
     gap: 12px;
   }
 
@@ -1062,13 +1060,10 @@ html[data-theme="light"] .form-group select {
   .form-group input,
   .form-group select {
     padding: 12px 12px;
-    font-size: 16px; /* Essential: Prevents iOS & Android browsers auto-zooming! */
+    font-size: 16px; /* Prevents auto-zooming on mobile viewports */
   }
 
-  .card-body.grid-3 {
-    grid-template-columns: 1fr;
-  }
-
+  .card-body.grid-3,
   .card-body.grid-2 {
     grid-template-columns: 1fr;
   }
@@ -1078,20 +1073,18 @@ html[data-theme="light"] .form-group select {
     grid-column: span 1;
   }
 
-  /* Mobile-first panel toggling rules */
   .hide-mobile {
     display: none !important;
   }
 
   .mobile-nav-bar {
-    display: flex; /* Activate Android bottom tab switcher on mobile screens */
+    display: flex;
   }
 
   .hidden-mobile {
     display: none !important;
   }
 
-  /* Preview paper scales horizontally under wrapper scroll on Android screens */
   .invoice-sheet {
     padding: 24px;
     min-height: auto;
@@ -1102,8 +1095,13 @@ html[data-theme="light"] .form-group select {
     gap: 14px;
   }
 
-  .txt-right {
-    text-align: left !important;
+  /* Specific rule for mobile layout viewports to retain readability */
+  .preview-panel .txt-right {
+    text-align: right !important;
+  }
+  
+  .preview-panel .inv-sheet-title {
+    text-align: right !important;
   }
 
   .inv-summary-block {
@@ -1126,7 +1124,6 @@ html[data-theme="light"] .form-group select {
     width: 100%;
   }
 
-  /* Toast shifts up to avoid blockading mobile nav */
   .toast-container {
     bottom: 80px;
     left: 12px;
@@ -1142,7 +1139,6 @@ html[data-theme="light"] .form-group select {
    Print Optimization (@media print Rules)
    ========================================================================== */
 @media print {
-  /* Hide all dashboard tools & floating elements completely */
   body, html {
     background: #ffffff !important;
     color: #000000 !important;
@@ -1200,7 +1196,15 @@ html[data-theme="light"] .form-group select {
     color: #000000 !important;
   }
 
-  /* Make sure printing aligns beautifully on the page */
+  /* Structural rules to enforce proper layout alignments on printed paper */
+  .invoice-sheet .txt-right {
+    text-align: right !important;
+  }
+
+  .invoice-sheet .inv-sheet-title {
+    text-align: right !important;
+  }
+
   .inv-brand-circle {
     background: #e2e8f0 !important;
     color: #1e1b4b !important;
