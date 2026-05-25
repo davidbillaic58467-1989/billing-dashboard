@@ -2,363 +2,268 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SRS Corporation - Premium Billing Dashboard</title>
-  <!-- Google Fonts: Outfit (Geometric, premium) & JetBrains Mono (monetary styling) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- html2pdf.js CDN for client-side PDF generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- CSS Stylesheet -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SRS Corporation Premium Invoice System</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
-  
-  <!-- Custom Overrides for Black & White Theme Minimalistic styling -->
-  <style>
-    [data-theme="dark"] {
-      --bg-color: #000000;
-      --card-bg: #111111;
-      --text-color: #ffffff;
-      --border-color: #222222;
-      --accent-color: #ffffff;
-      --btn-text: #000000;
-    }
-    :root {
-      --bg-color: #ffffff;
-      --card-bg: #f9f9f9;
-      --text-color: #000000;
-      --border-color: #dddddd;
-      --accent-color: #000000;
-      --btn-text: #ffffff;
-    }
-  </style>
 </head>
 <body>
+
   <div class="app-container">
-    <!-- TOP NAVIGATION BAR -->
     <header class="app-header">
       <div class="brand">
         <div class="brand-logo">
-          <i data-lucide="receipt"></i>
+          <i class="fa-solid fa-file-invoice-dollar"></i>
         </div>
         <div class="brand-text">
-          <h1>SRS<span>Bill</span></h1>
-          <p>SRS Corporation Engine</p>
+          <h1>SRS <span>Corporation</span></h1>
+          <p>Range of Products: Wellness and Healthcare, Skincare, Personalcare, Oral care, Homecare</p>
         </div>
       </div>
-
       <div class="header-actions">
-        <button id="btn-theme-toggle" class="btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
-          <i data-lucide="sun" class="sun-icon"></i>
-          <i data-lucide="moon" class="moon-icon"></i>
-        </button>
-        <button id="btn-demo" class="btn btn-secondary">
-          <i data-lucide="sparkles"></i> Demo Data
-        </button>
-        <button id="btn-clear" class="btn btn-danger">
-          <i data-lucide="trash-2"></i> Reset
-        </button>
-        <button id="btn-print" class="btn btn-primary-outline hidden-mobile">
-          <i data-lucide="printer"></i> Print
-        </button>
-        <button id="btn-pdf" class="btn btn-primary">
-          <i data-lucide="download"></i> Get PDF
+        <button id="btn-theme-toggle" class="btn-icon" title="Toggle Theme">
+          <i class="fa-solid fa-sun sun-icon"></i>
+          <i class="fa-solid fa-moon moon-icon"></i>
         </button>
       </div>
     </header>
 
-    <!-- MAIN DASHBOARD CONTENT -->
-    <main class="dashboard-grid">
-      <!-- LEFT COLUMN: CONTROLS & FORM INPUTS -->
-      <section class="control-panel">
-        <!-- Customer Info Card -->
-        <div class="card glass">
+    <div class="dashboard-grid">
+      
+      <main class="control-panel">
+        
+        <div class="card">
           <div class="card-header">
-            <i data-lucide="user"></i>
-            <h2>Customer & Invoice Details</h2>
+            <i class="fa-solid fa-sliders"></i>
+            <h2>Invoice Configuration</h2>
           </div>
           <div class="card-body grid-2">
             <div class="form-group">
-              <label for="inv-number">Invoice Number</label>
-              <input type="text" id="inv-number" placeholder="INV-2026-001">
+              <label>Invoice ID</label>
+              <input type="text" id="input-inv-id" value="INV-2026-001">
             </div>
             <div class="form-group">
-              <label for="inv-date">Invoice Date</label>
-              <input type="date" id="inv-date">
+              <label>Client Name</label>
+              <input type="text" id="input-client-name" value="Acme Consumer Goods Ltd">
             </div>
             <div class="form-group col-span-2">
-              <label for="cust-name">Customer Name</label>
-              <input type="text" id="cust-name" placeholder="Enter customer's full name">
-            </div>
-            <div class="form-group">
-              <label for="cust-email">Email Address</label>
-              <input type="email" id="cust-email" placeholder="customer@domain.com">
-            </div>
-            <div class="form-group">
-              <label for="cust-phone">Phone / Mobile</label>
-              <input type="tel" id="cust-phone" placeholder="+91 98765 43210">
+              <label>Client Address</label>
+              <input type="text" id="input-client-addr" value="452 Innovation Way, Tech District, Suite 10">
             </div>
           </div>
         </div>
 
-        <!-- Add Item Card -->
-        <div class="card glass">
+        <div class="card">
           <div class="card-header">
-            <i data-lucide="plus-circle"></i>
-            <h2>Add Product / Service</h2>
+            <i class="fa-solid fa-cart-plus"></i>
+            <h2>Add Line Item</h2>
           </div>
-          <form id="add-product-form" class="card-body">
-            <div class="grid-3">
-              <div class="form-group col-span-3">
-                <label for="prod-name">Product / Service Name</label>
-                <input type="text" id="prod-name" placeholder="e.g., Skincare / Oralcare Pack" required>
-              </div>
-              <div class="form-group">
-                <label for="prod-mrp">MRP Rate (₹)</label>
-                <input type="number" id="prod-mrp" step="0.01" min="0" placeholder="0.00" required>
-              </div>
-              <div class="form-group">
-                <label for="prod-actual">Actual Rate (₹)</label>
-                <input type="number" id="prod-actual" step="0.01" min="0" placeholder="0.00" required>
-              </div>
-              <div class="form-group">
-                <label for="prod-qty">Quantity</label>
-                <input type="number" id="prod-qty" min="1" value="1" required>
-              </div>
-            </div>
-
-            <!-- Dynamic Discount Information HUD -->
-            <div class="discount-hud" id="discount-hud">
-              <span class="hud-label">Instant Savings:</span>
-              <span class="hud-value" id="hud-discount-val">₹0.00 (0%)</span>
-            </div>
-
-            <button type="submit" class="btn btn-accent btn-full">
-              <i data-lucide="plus"></i> Add Item to Invoice
-            </button>
-          </form>
-        </div>
-
-        <!-- Items Table List -->
-        <div class="card glass col-span-2">
-          <div class="card-header list-header">
-            <div class="header-left">
-              <i data-lucide="shopping-bag"></i>
-              <h2>Line Items</h2>
-            </div>
-            <span class="badge badge-info" id="item-count-badge">0 items</span>
-          </div>
-          <div class="card-body no-padding table-responsive">
-            <table class="items-table" id="items-table">
-              <thead>
-                <tr>
-                  <th>Product Details</th>
-                  <th class="txt-center">Qty</th>
-                  <th class="txt-right">MRP Rate</th>
-                  <th class="txt-right">Actual Rate</th>
-                  <th class="txt-right">Discount</th>
-                  <th class="txt-right">Total</th>
-                  <th class="txt-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="items-table-body">
-                <!-- Dynamic Items will be appended here -->
-                <tr class="empty-state-row">
-                  <td colspan="7">
-                    <div class="empty-state">
-                      <i data-lucide="package-open"></i>
-                      <p>No items added yet. Use the form above or click "Demo Data" to get started.</p>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Billing Summary Controls -->
-        <div class="card glass">
-          <div class="card-header">
-            <i data-lucide="calculator"></i>
-            <h2>Taxes & Adjustments</h2>
-          </div>
-          <div class="card-body grid-2">
+          <div class="card-body grid-3">
             <div class="form-group">
-              <label for="tax-rate">Tax Rate (%)</label>
-              <select id="tax-rate">
-                <option value="0">0% (Tax Exempt)</option>
-                <option value="5">5% (GST / VAT)</option>
-                <option value="12">12% (Standard Sales Tax)</option>
-                <option value="18" selected>18% (Luxury / GST Standard)</option>
-                <option value="28">28% (Luxury Extra)</option>
+              <label>Product Range</label>
+              <select id="input-item-range">
+                <option value="Wellness & Healthcare">Wellness and Healthcare</option>
+                <option value="Skincare">Skincare</option>
+                <option value="Personalcare">Personalcare</option>
+                <option value="Oral Care">Oral care</option>
+                <option value="Homecare">Homecare</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="shipping-cost">Shipping / Delivery (₹)</label>
-              <input type="number" id="shipping-cost" step="0.01" min="0" value="0.00">
+              <label>Product Item Name</label>
+              <input type="text" id="input-item-name" placeholder="e.g. Organic Aloe Vera Cream">
+            </div>
+            <div class="form-group">
+              <label>Qty</label>
+              <input type="number" id="input-item-qty" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label>Unit Price ($)</label>
+              <input type="number" id="input-item-price" min="0" step="0.01" value="0.00">
+            </div>
+            <div class="form-group">
+              <label>Discount (%)</label>
+              <input type="number" id="input-item-discount" min="0" max="100" value="0">
+            </div>
+            <div class="form-group" style="justify-content: flex-end;">
+              <button id="btn-add-item" class="btn btn-primary btn-full">
+                <i class="fa-solid fa-plus"></i> Add
+              </button>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- RIGHT COLUMN: DYNAMIC LIVE PREVIEW -->
-      <section class="preview-panel hide-mobile">
-        <div class="sticky-container">
-          <div class="preview-header-bar">
-            <span><i data-lucide="eye"></i> Live Printable Invoice Preview</span>
-            <div class="canvas-scale">A4 Sheet Ratio</div>
+        <div class="card">
+          <div class="card-header list-header">
+            <div class="header-left">
+              <i class="fa-solid fa-list-check"></i>
+              <h2>Current Items Queue</h2>
+            </div>
+            <span class="badge badge-info" id="queue-count-badge">0 Items</span>
           </div>
+          <div class="card-body no-padding">
+            <div class="table-responsive">
+              <table class="items-table" id="tracker-table">
+                <thead>
+                  <tr>
+                    <th>Product Details</th>
+                    <th class="txt-center">Qty</th>
+                    <th class="txt-right">Price</th>
+                    <th class="txt-right">Discount</th>
+                    <th class="txt-right">Total</th>
+                    <th class="txt-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tracker-table-body">
+                  </tbody>
+              </table>
+              <div class="empty-state" id="table-empty-state">
+                <i class="fa-solid fa-box-open"></i>
+                <p>No line items added yet. Populate the item fields above.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <i class="fa-solid fa-credit-card"></i>
+            <h2>Transaction Settings</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Choose Payment Mode</label>
+              <select id="control-payment-mode">
+                <option value="Net-Banking">1. Net-Banking</option>
+                <option value="UPI" selected>2. UPI</option>
+                <option value="By-Cash">3. By-Cash</option>
+              </select>
+            </div>
+            <div style="margin-top: 16px; display: flex; gap: 10px;">
+              <button onclick="window.print()" class="btn btn-accent btn-full">
+                <i class="fa-solid fa-print"></i> Print / Save PDF
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="preview-panel">
+        <div class="sticky-container">
           
-          <!-- This is the actual container that will be exported to PDF -->
+          <div class="preview-header-bar">
+            <div><i class="fa-solid fa-eye"></i> Live Printable Document Sheet Matrix</div>
+            <div class="canvas-scale">A4 Standard Preview</div>
+          </div>
+
           <div class="invoice-paper-wrapper">
-            <div id="invoice-sheet" class="invoice-sheet">
-              <!-- Invoice Header -->
+            <div class="invoice-sheet" id="invoice-render-sheet">
+              
               <div class="inv-sheet-header">
                 <div class="inv-company-brand">
                   <div class="inv-brand-circle">
-                    <i data-lucide="aperture"></i>
+                    <i class="fa-solid fa-leaf"></i>
                   </div>
                   <div>
-                    <h3 class="inv-company-name">SRS Corporation</h3>
-                    <p class="inv-company-sub">Range of Products: Wellness and Healthcare, Skincare, Personalcare, Oralcare with also homecare</p>
+                    <div class="inv-company-name">SRS Corporation</div>
+                    <div class="inv-company-sub">Premium Health, Care & Home Ranges</div>
                   </div>
                 </div>
                 <div class="inv-sheet-title">
                   <h2>INVOICE</h2>
-                  <p class="inv-id-display" id="preview-inv-no">INV-2026-0001</p>
+                  <div class="inv-id-display" id="sheet-inv-id">INV-2026-001</div>
                 </div>
               </div>
 
               <hr class="inv-divider">
 
-              <!-- Meta Details Row -->
               <div class="inv-meta-grid">
                 <div>
-                  <h4 class="inv-meta-title">Billed To:</h4>
-                  <p class="inv-meta-value highlight" id="preview-cust-name">Valued Customer</p>
-                  <p class="inv-meta-value" id="preview-cust-email">customer@domain.com</p>
-                  <p class="inv-meta-value" id="preview-cust-phone">+91 98765 43210</p>
+                  <div class="inv-meta-title">Billed By</div>
+                  <div class="inv-meta-value highlight">SRS Corporation Logistics</div>
+                  <div class="inv-meta-value">Global Fulfillment Hub</div>
+                  <div class="inv-meta-value">contact@srs-corp.com</div>
                 </div>
                 <div>
-                  <h4 class="inv-meta-title">Billed By:</h4>
-                  <p class="inv-meta-value highlight">S Vairasamy</p>
-                  <p class="inv-meta-value">4/317, Appavupillai patti, k Pudhur main road</p>
-                  <p class="inv-meta-value">Near grocery and tea shop, Nilakotttaai(TK)</p>
-                  <p class="inv-meta-value">Dindigul.</p>
+                  <div class="inv-meta-title">Billed To</div>
+                  <div class="inv-meta-value highlight" id="sheet-client-name">Acme Consumer Goods Ltd</div>
+                  <div class="inv-meta-value" id="sheet-client-addr">452 Innovation Way, Tech District, Suite 10</div>
                 </div>
-                <div class="txt-right">
-                  <h4 class="inv-meta-title">Date of Issue:</h4>
-                  <p class="inv-meta-value highlight" id="preview-inv-date">May 24, 2026</p>
-                  
-                  <h4 class="inv-meta-title mt-12">Payment Due:</h4>
-                  <p class="inv-meta-value highlight">Due Upon Receipt</p>
+                <div>
+                  <div class="inv-meta-title">Product Categories Info</div>
+                  <div class="inv-meta-value" style="font-size: 0.75rem; line-height: 1.4; color: var(--sheet-muted);">
+                    Wellness & Healthcare, Skincare, Personalcare, Oral care, Homecare
+                  </div>
                 </div>
               </div>
 
-              <!-- Items Table on Preview -->
               <table class="inv-preview-table">
                 <thead>
                   <tr>
-                    <th>Product / Service Description</th>
-                    <th class="txt-center">Qty</th>
-                    <th class="txt-right">MRP</th>
-                    <th class="txt-right">Actual</th>
-                    <th class="txt-right">Discount</th>
-                    <th class="txt-right">Amount</th>
+                    <th style="width: 45%;">Item Description</th>
+                    <th class="txt-center" style="width: 10%;">Qty</th>
+                    <th class="txt-right" style="width: 15%;">Unit Price</th>
+                    <th class="txt-right" style="width: 15%;">Discount</th>
+                    <th class="txt-right" style="width: 15%;">Amount</th>
                   </tr>
                 </thead>
-                <tbody id="preview-items-body">
-                  <!-- Dynamic rows go here -->
-                  <tr class="preview-empty-row">
-                    <td colspan="6" class="txt-center text-muted">
-                      No items currently listed on the invoice.
-                    </td>
-                  </tr>
-                </tbody>
+                <tbody id="sheet-table-body">
+                  </tbody>
               </table>
 
-              <!-- Totals & Summary Block -->
               <div class="inv-summary-block">
-                <!-- Congratulatory discount alert -->
-                <div class="savings-alert-box" id="savings-box" style="display: none;">
+                <div class="savings-alert-box" id="sheet-savings-box" style="visibility: hidden;">
                   <div class="savings-content">
-                    <i data-lucide="badge-check"></i>
-                    <span>Total Client Savings: <strong id="preview-savings-val">₹0.00</strong></span>
+                    <i class="fa-solid fa-tags"></i>
+                    <div>Bundle Discount savings applied! You kept <strong id="sheet-savings-value">$0.00</strong> on this deal.</div>
                   </div>
                 </div>
 
                 <div class="totals-table">
                   <div class="totals-row">
                     <span>Subtotal:</span>
-                    <span id="preview-subtotal">₹0.00</span>
+                    <span id="sheet-subtotal">$0.00</span>
                   </div>
                   <div class="totals-row discount-highlight">
-                    <span>Total Discount Saved:</span>
-                    <span id="preview-discount-total">-₹0.00</span>
-                  </div>
-                  <div class="totals-row">
-                    <span id="preview-tax-label">Tax (18%):</span>
-                    <span id="preview-tax-amount">₹0.00</span>
-                  </div>
-                  <div class="totals-row" id="preview-shipping-row" style="display: none;">
-                    <span>Shipping & Delivery:</span>
-                    <span id="preview-shipping-amount">₹0.00</span>
+                    <span>Total Discount Deduction:</span>
+                    <span id="sheet-discount">-$0.00</span>
                   </div>
                   <div class="totals-row grand-total">
                     <span>Grand Total:</span>
-                    <span id="preview-grand-total">₹0.00</span>
+                    <span id="sheet-grand-total">$0.00</span>
                   </div>
                   
-                  <!-- Added Payment Mode Block Below Grand Total -->
-                  <div class="totals-row payment-mode-block" style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color); text-align: left; font-size: 0.85rem;">
-                    <span style="font-weight: 600; display: block; margin-bottom: 4px;">Payment Mode:</span>
-                    <div style="line-height: 1.4; color: var(--text-color); opacity: 0.8;">
-                      1. Net-Banking<br>
-                      2. UPI<br>
-                      3. By-Cash
-                    </div>
+                  <div class="payment-mode-sheet-box">
+                    <div class="payment-mode-title">Payment Mode Selection</div>
+                    <div class="payment-mode-value" id="sheet-payment-mode-display">2. UPI</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Footer with Terms & Signature -->
               <div class="inv-footer-block">
                 <div class="inv-terms">
                   <h4>Terms & Conditions</h4>
-                  <p>1. All consumer and healthcare products are supplied under standard commercial policies.</p>
-                  <p>2. Payments are accepted via UPI, NetBanking, or Cash immediately on receipt.</p>
-                  <p>3. Thank you for partnering with SRS Corporation. We appreciate your business!</p>
+                  <p>Payment is expected based on selected routing variables.<br>Goods items are verified secure under core corporate premium logistics standards.</p>
                 </div>
                 <div class="inv-signature">
                   <div class="sig-line"></div>
-                  <p>Authorized Signatory</p>
+                  <p>Authorized Signature</p>
                 </div>
               </div>
+
             </div>
           </div>
+
         </div>
-      </section>
-    </main>
+      </aside>
 
-    <!-- MOBILE STICKY BOTTOM TAB NAVIGATION -->
-    <div class="mobile-nav-bar">
-      <button id="tab-edit" class="mobile-nav-btn active">
-        <i data-lucide="edit-3"></i>
-        <span>Edit Bill</span>
-      </button>
-      <button id="tab-preview" class="mobile-nav-btn">
-        <i data-lucide="eye"></i>
-        <span>Live Preview</span>
-      </button>
     </div>
-
-    <!-- Floating Toast Notifications -->
-    <div class="toast-container" id="toast-container"></div>
   </div>
 
-  <!-- Main JavaScript File -->
+  <div class="toast-container" id="toast-frame"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
