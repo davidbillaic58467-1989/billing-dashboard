@@ -14,6 +14,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Custom Overrides for Black & White Theme Minimalistic styling -->
+  <style>
+    [data-theme="dark"] {
+      --bg-color: #000000;
+      --card-bg: #111111;
+      --text-color: #ffffff;
+      --border-color: #222222;
+      --accent-color: #ffffff;
+      --btn-text: #000000;
+    }
+    :root {
+      --bg-color: #ffffff;
+      --card-bg: #f9f9f9;
+      --text-color: #000000;
+      --border-color: #dddddd;
+      --accent-color: #000000;
+      --btn-text: #ffffff;
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
@@ -93,7 +113,7 @@
             <div class="grid-3">
               <div class="form-group col-span-3">
                 <label for="prod-name">Product / Service Name</label>
-                <input type="text" id="prod-name" placeholder="e.g., Premium Web Suite" required>
+                <input type="text" id="prod-name" placeholder="e.g., Skincare / Oralcare Pack" required>
               </div>
               <div class="form-group">
                 <label for="prod-mrp">MRP Rate (₹)</label>
@@ -202,7 +222,7 @@
                   </div>
                   <div>
                     <h3 class="inv-company-name">SRS Corporation</h3>
-                    <p class="inv-company-sub">Enterprise Digital & Industrial Solutions</p>
+                    <p class="inv-company-sub">Range of Products: Wellness and Healthcare, Skincare, Personalcare, Oralcare with also homecare</p>
                   </div>
                 </div>
                 <div class="inv-sheet-title">
@@ -223,9 +243,10 @@
                 </div>
                 <div>
                   <h4 class="inv-meta-title">Billed By:</h4>
-                  <p class="inv-meta-value highlight">SRS Corporation Ltd.</p>
-                  <p class="inv-meta-value">701, Signature Towers, Bandra Kurla Complex</p>
-                  <p class="inv-meta-value">Mumbai, MH - 400051</p>
+                  <p class="inv-meta-value highlight">S Vairasamy</p>
+                  <p class="inv-meta-value">4/317, Appavupillai patti, k Pudhur main road</p>
+                  <p class="inv-meta-value">Near grocery and tea shop, Nilakotttaai(TK)</p>
+                  <p class="inv-meta-value">Dindigul.</p>
                 </div>
                 <div class="txt-right">
                   <h4 class="inv-meta-title">Date of Issue:</h4>
@@ -289,6 +310,16 @@
                     <span>Grand Total:</span>
                     <span id="preview-grand-total">₹0.00</span>
                   </div>
+                  
+                  <!-- Added Payment Mode Block Below Grand Total -->
+                  <div class="totals-row payment-mode-block" style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color); text-align: left; font-size: 0.85rem;">
+                    <span style="font-weight: 600; display: block; margin-bottom: 4px;">Payment Mode:</span>
+                    <div style="line-height: 1.4; color: var(--text-color); opacity: 0.8;">
+                      1. Net-Banking<br>
+                      2. UPI<br>
+                      3. By-Cash
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -296,8 +327,8 @@
               <div class="inv-footer-block">
                 <div class="inv-terms">
                   <h4>Terms & Conditions</h4>
-                  <p>1. All goods/services are provided by SRS Corporation under standard industrial licenses.</p>
-                  <p>2. Payments are accepted via UPI, NetBanking, or IMPS immediately on receipt.</p>
+                  <p>1. All consumer and healthcare products are supplied under standard commercial policies.</p>
+                  <p>2. Payments are accepted via UPI, NetBanking, or Cash immediately on receipt.</p>
                   <p>3. Thank you for partnering with SRS Corporation. We appreciate your business!</p>
                 </div>
                 <div class="inv-signature">
