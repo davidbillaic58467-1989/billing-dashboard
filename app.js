@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Set default initial values
 function initDefaults() {
-  // Setup standard initial values
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -107,16 +106,13 @@ function initDefaults() {
 
 // --- Event Listeners Configuration ---
 function initEventListeners() {
-  // Theme Toggle
   DOM.themeToggle.addEventListener('click', toggleTheme);
   
-  // Header Actions
   DOM.btnDemo.addEventListener('click', loadDemoData);
   DOM.btnClear.addEventListener('click', resetAll);
   DOM.btnPrint.addEventListener('click', () => window.print());
   DOM.btnPdf.addEventListener('click', generatePDF);
   
-  // Real-time synchronization of customer inputs
   DOM.invNumber.addEventListener('input', (e) => {
     state.invoiceNumber = e.target.value;
     updatePreviewMeta();
@@ -143,12 +139,10 @@ function initEventListeners() {
     saveDraft();
   });
   
-  // Product HUD real-time calculations in Indian Rupees (₹)
   DOM.prodMrp.addEventListener('input', updateProductHud);
   DOM.prodActual.addEventListener('input', updateProductHud);
   DOM.prodQty.addEventListener('input', updateProductHud);
   
-  // Tax & Shipping adjustment listeners
   DOM.taxRateSelect.addEventListener('change', (e) => {
     state.taxRate = parseFloat(e.target.value);
     calculateInvoice();
@@ -160,7 +154,6 @@ function initEventListeners() {
     saveDraft();
   });
   
-  // Form submission (Add line item)
   DOM.addProductForm.addEventListener('submit', handleAddProduct);
 }
 
@@ -187,7 +180,6 @@ function initMobileTabs() {
       showToast('Switched to Live Receipt Preview', 'info');
     });
     
-    // Default startup tab setting on mobile widths
     if (window.innerWidth <= 768) {
       DOM.previewPanel.classList.add('hide-mobile');
     }
@@ -203,7 +195,7 @@ function toggleTheme() {
   showToast(`Switched to ${newTheme.toUpperCase()} theme`, 'info');
 }
 
-// --- Dynamic Product HUD (Form Display Helper) ---
+// --- Dynamic Product HUD ---
 function updateProductHud() {
   const mrp = parseFloat(DOM.prodMrp.value) || 0;
   const actual = parseFloat(DOM.prodActual.value) || 0;
@@ -280,7 +272,6 @@ function handleAddProduct(e) {
   
   state.items.push(newItem);
   
-  // Reset Form
   DOM.prodName.value = '';
   DOM.prodMrp.value = '';
   DOM.prodActual.value = '';
@@ -293,7 +284,6 @@ function handleAddProduct(e) {
   calculateInvoice();
   saveDraft();
   
-  // Highlight newly added items in left list
   const lastRow = DOM.itemsTableBody.lastElementChild;
   if (lastRow) {
     lastRow.classList.add('item-row-animate');
@@ -319,15 +309,12 @@ function calculateInvoice() {
   let subtotalActual = 0;
   let totalSavings = 0;
   
-  // Clear table rows
   DOM.itemsTableBody.innerHTML = '';
   DOM.previewItemsBody.innerHTML = '';
   
-  // Set count badge
   DOM.itemCountBadge.textContent = `${state.items.length} item${state.items.length !== 1 ? 's' : ''}`;
   
   if (state.items.length === 0) {
-    // Left Grid empty state
     DOM.itemsTableBody.innerHTML = `
       <tr class="empty-state-row">
         <td colspan="7">
@@ -340,7 +327,6 @@ function calculateInvoice() {
     `;
     lucide.createIcons();
     
-    // Right Preview empty state
     DOM.previewItemsBody.innerHTML = `
       <tr class="preview-empty-row">
         <td colspan="6" class="txt-center text-muted">
@@ -358,7 +344,6 @@ function calculateInvoice() {
     return;
   }
   
-  // Populate Rows & Perform Math
   state.items.forEach((item) => {
     subtotalMrp += item.mrp * item.qty;
     subtotalActual += item.actual * item.qty;
@@ -366,7 +351,6 @@ function calculateInvoice() {
     const discTotal = (item.mrp - item.actual) * item.qty;
     const discPct = item.mrp > 0 ? (((item.mrp - item.actual) / item.mrp) * 100).toFixed(0) : 0;
     
-    // 1. Build Left Control Grid Row
     const trLeft = document.createElement('tr');
     trLeft.innerHTML = `
       <td>
@@ -387,7 +371,6 @@ function calculateInvoice() {
     `;
     DOM.itemsTableBody.appendChild(trLeft);
     
-    // 2. Build Right Preview Sheet Row
     const trRight = document.createElement('tr');
     trRight.innerHTML = `
       <td style="font-weight: 500;">${escapeHtml(item.name)}</td>
@@ -402,15 +385,12 @@ function calculateInvoice() {
     DOM.previewItemsBody.appendChild(trRight);
   });
   
-  // Re-generate Lucide icons for new delete buttons
   lucide.createIcons();
   
-  // Totals calculations in Indian Rupees (₹)
   totalSavings = subtotalMrp - subtotalActual;
   const taxAmount = subtotalActual * (state.taxRate / 100);
   const grandTotal = subtotalActual + taxAmount + state.shipping;
   
-  // UI Display updates
   DOM.previewSubtotal.textContent = `₹${subtotalActual.toFixed(2)}`;
   
   if (totalSavings > 0) {
@@ -439,7 +419,6 @@ function calculateInvoice() {
 function generatePDF() {
   const element = document.getElementById('invoice-sheet');
   
-  // Check if invoice has any items
   if (state.items.length === 0) {
     showToast('Invoice is empty! Please add some line items.', 'danger');
     return;
@@ -487,7 +466,6 @@ function logInvoiceHistory() {
     total: state.items.reduce((acc, curr) => acc + (curr.actual * curr.qty), 0)
   };
   
-  // Avoid duplicating logging the same invoice number if downloaded repeatedly
   if (!logs.some(log => log.number === record.number)) {
     logs.unshift(record);
     localStorage.setItem('srs-billing-history', JSON.stringify(logs));
@@ -500,20 +478,17 @@ function saveDraft() {
 }
 
 function loadSavedState() {
-  // Theme restoration
   const savedTheme = localStorage.getItem('srs-theme');
   if (savedTheme) {
     DOM.html.setAttribute('data-theme', savedTheme);
   }
   
-  // Form draft restoration
   const savedDraft = localStorage.getItem('srs-billing-draft');
   if (savedDraft) {
     try {
       const parsed = JSON.parse(savedDraft);
       state = { ...state, ...parsed };
       
-      // Update form values
       DOM.invNumber.value = state.invoiceNumber;
       DOM.invDate.value = state.invoiceDate;
       DOM.custName.value = state.customer.name;
@@ -555,42 +530,52 @@ function resetAll() {
 // --- Action: Load Premium Indian Business Preset Data ---
 function loadDemoData() {
   state.customer = {
-    name: 'Rajesh Nair',
-    email: 'rajesh.nair@anantadigital.in',
-    phone: '+91 94250 81092'
+    name: 'Anand Sharma',
+    email: 'anand.sharma@gmail.com',
+    phone: '+91 94432 56710'
   };
   
+  // Updated demo values to reflect Healthcare, Skincare, Personalcare, Oralcare, and Homecare lines
   state.items = [
     {
       id: 1,
-      name: 'Enterprise ERP System Development & Integration',
-      mrp: 185000.00,
-      actual: 145000.00,
-      qty: 1,
-      discount: 40000.00,
-      total: 145000.00
+      name: 'Advanced Healthcare Multivitamin & Wellness Kit',
+      mrp: 2450.00,
+      actual: 1999.00,
+      qty: 2,
+      discount: 451.00,
+      total: 3998.00
     },
     {
       id: 2,
-      name: 'Custom Mobile Application UI/UX Design System',
-      mrp: 85000.00,
-      actual: 72000.00,
-      qty: 1,
-      discount: 13000.00,
-      total: 72000.00
+      name: 'Hydrating Glow Skincare Serum (Premium Range)',
+      mrp: 1200.00,
+      actual: 950.00,
+      qty: 3,
+      discount: 250.00,
+      total: 2850.00
     },
     {
       id: 3,
-      name: 'AWS Cloud Architecture Infrastructure Deployment',
-      mrp: 45000.00,
-      actual: 45000.00,
-      qty: 2,
+      name: 'Complete Oralcare Charcoal Protection Toothpaste Pack',
+      mrp: 450.00,
+      actual: 450.00,
+      qty: 5,
       discount: 0.00,
-      total: 90000.00
+      total: 2250.00
+    },
+    {
+      id: 4,
+      name: 'Eco-Friendly Concentrated Homecare Liquid Detergent',
+      mrp: 850.00,
+      actual: 720.00,
+      qty: 2,
+      discount: 130.00,
+      total: 1440.00
     }
   ];
   
-  state.shipping = 1500.00;
+  state.shipping = 120.00;
   state.taxRate = 18;
   
   DOM.custName.value = state.customer.name;
@@ -603,7 +588,7 @@ function loadDemoData() {
   calculateInvoice();
   saveDraft();
   
-  showToast('SRS Corporation demo invoice loaded.', 'success');
+  showToast('SRS Corporation FMCG & Retail demo data loaded.', 'success');
 }
 
 // --- Toast System Helper ---
