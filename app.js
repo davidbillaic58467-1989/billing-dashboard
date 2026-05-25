@@ -1,31 +1,31 @@
 // ==========================================================================
-// SRS Corporation Premium Invoice Application Logic
-// Real-Time Computation engine with Integrated Category Management
+// S Vairasamy Billing Control Engine
+// Computation logic structured for Indian Rupee (₹) and Category Tracking
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
   
-  // Data State Queue
+  // Initial Seed State Configuration (Indian Rupee Currency Context)
   let invoiceItems = [
     {
-      id: "item_1",
+      id: "seed_1",
       range: "Wellness & Healthcare",
-      name: "Premium Multivitamin Complex",
-      qty: 2,
-      price: 45.00,
+      name: "Ashwagandha Premium Capsules",
+      qty: 5,
+      price: 340.00,
       discount: 10
     },
     {
-      id: "item_2",
-      range: "Skincare",
-      name: "Hydrating Hyaluronic Serum",
-      qty: 1,
-      price: 60.00,
-      discount: 0
+      id: "seed_2",
+      range: "Oralcare",
+      name: "Ayurvedic Clove Gel Toothpaste",
+      qty: 10,
+      price: 95.00,
+      discount: 5
     }
   ];
 
-  // DOM Interface Anchors
+  // Interface Input Component Anchors
   const inputInvId = document.getElementById('input-inv-id');
   const inputClientName = document.getElementById('input-client-name');
   const inputClientAddr = document.getElementById('input-client-addr');
@@ -52,30 +52,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const sheetSavingsBox = document.getElementById('sheet-savings-box');
   const sheetSavingsValue = document.getElementById('sheet-savings-value');
 
-  // Payment System Node Selectors
   const controlPaymentMode = document.getElementById('control-payment-mode');
   const sheetPaymentModeDisplay = document.getElementById('sheet-payment-mode-display');
   const btnThemeToggle = document.getElementById('btn-theme-toggle');
 
-  // --- Real-Time Content Synthesizer Listeners ---
+  // --- Live Synchronization Event Framework ---
   inputInvId.addEventListener('input', (e) => sheetInvId.textContent = e.target.value || 'INV-XXXX');
-  inputClientName.addEventListener('input', (e) => sheetClientName.textContent = e.target.value || 'Client Name');
-  inputClientAddr.addEventListener('input', (e) => sheetClientAddr.textContent = e.target.value || 'Client Destination Address');
+  inputClientName.addEventListener('input', (e) => sheetClientName.textContent = e.target.value || 'Buyer Identity');
+  inputClientAddr.addEventListener('input', (e) => sheetClientAddr.textContent = e.target.value || 'Delivery Destination Location Address');
 
-  // Action : Payment Mode selection linkage listener
+  // Action Logic: Routing Payment Mode Selections Cleanly
   controlPaymentMode.addEventListener('change', (e) => {
     const selectedMode = e.target.value;
-    
-    // Convert storage names to human readable view variants cleanly
-    let displayFormat = "2. UPI";
-    if (selectedMode === "Net-Banking") displayFormat = "1. Net-Banking";
-    if (selectedMode === "By-Cash") displayFormat = "3. By-Cash";
-    
-    sheetPaymentModeDisplay.textContent = displayFormat;
-    spawnToast(`Payment method assigned: ${selectedMode}`, "info");
+    let formattedLabel = "2. UPI";
+
+    if (selectedMode === "Net-Banking") formattedLabel = "1. Net-Banking";
+    if (selectedMode === "By-Cash") formattedLabel = "3. By-Cash";
+
+    sheetPaymentModeDisplay.textContent = formattedLabel;
+    spawnToastNotification(`Payment setup set to: ${selectedMode}`, "success");
   });
 
-  // --- Line Item Operations ---
+  // --- Dynamic Table Line Append Methods ---
   btnAddItem.addEventListener('click', () => {
     const range = inputItemRange.value;
     const name = inputItemName.value.trim();
@@ -84,16 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const discount = parseInt(inputItemDiscount.value) || 0;
 
     if (!name) {
-      spawnToast("Product name cannot remain empty.", "danger");
+      spawnToastNotification("Please supply an accurate product title name.", "danger");
       return;
     }
     if (qty <= 0 || price < 0) {
-      spawnToast("Verify valid mathematical constraints for price & units.", "danger");
+      spawnToastNotification("Invalid quantity or pricing value fields specified.", "danger");
       return;
     }
 
-    const newItem = {
-      id: 'item_' + Date.now(),
+    const entryObject = {
+      id: 'prod_' + Date.now(),
       range,
       name,
       qty,
@@ -101,134 +99,133 @@ document.addEventListener('DOMContentLoaded', () => {
       discount
     };
 
-    invoiceItems.push(newItem);
-    renderInterfaceMatrix();
-    spawnToast(`Appended ${name} to calculation tables.`, "success");
+    invoiceItems.push(entryObject);
+    compileMatrixCalculations();
+    spawnToastNotification(`Added "${name}" into system matrices.`, "success");
 
-    // Clear operational input lines
+    // Reset localized product elements fields safely
     inputItemName.value = '';
     inputItemQty.value = '1';
     inputItemPrice.value = '0.00';
     inputItemDiscount.value = '0';
   });
 
-  window.deleteLineItem = (itemId) => {
-    invoiceItems = invoiceItems.filter(item => item.id !== itemId);
-    renderInterfaceMatrix();
-    spawnToast("Item removed from matrix.", "danger");
+  window.deleteLineItem = (targetId) => {
+    invoiceItems = invoiceItems.filter(item => item.id !== targetId);
+    compileMatrixCalculations();
+    spawnToastNotification("Product item detached from document computations.", "danger");
   };
 
-  // --- UI Computation Matrix Compiler ---
-  function renderInterfaceMatrix() {
-    // Clear structural tables buffers
+  // --- Core Calculation Matrix Compiler (Indian Rupee Symbol Integrated) ---
+  function compileMatrixCalculations() {
     trackerTableBody.innerHTML = '';
     sheetTableBody.innerHTML = '';
 
     if (invoiceItems.length === 0) {
       tableEmptyState.style.display = 'flex';
-      queueCountBadge.textContent = "0 Items";
+      queueCountBadge.textContent = "0 Items Selected";
       queueCountBadge.className = "badge";
     } else {
       tableEmptyState.style.display = 'none';
-      queueCountBadge.textContent = `${invoiceItems.length} Products Added`;
+      queueCountBadge.textContent = `${invoiceItems.length} Products Active`;
       queueCountBadge.className = "badge badge-info";
     }
 
-    let subtotalCumulative = 0;
-    let totalDiscountCumulative = 0;
+    let subtotalAccumulator = 0;
+    let discountAccumulator = 0;
 
     invoiceItems.forEach(item => {
-      const grossAmount = item.qty * item.price;
-      const discountFraction = item.discount / 100;
-      const deductionValue = grossAmount * discountFraction;
-      const netAmount = grossAmount - deductionValue;
+      const lineGrossAmount = item.qty * item.price;
+      const calculatedDeduction = lineGrossAmount * (item.discount / 100);
+      const netFinalLineValue = lineGrossAmount - calculatedDeduction;
 
-      subtotalCumulative += grossAmount;
-      totalDiscountCumulative += deductionValue;
+      subtotalAccumulator += lineGrossAmount;
+      discountAccumulator += calculatedDeduction;
 
-      // 1. Render Left Control Dashboard Row
-      const dashboardRow = document.createElement('tr');
-      dashboardRow.className = "item-row-animate";
-      dashboardRow.innerHTML = `
+      // Create interactive tracker row entries
+      const controlRowNode = document.createElement('tr');
+      controlRowNode.className = "item-row-animate";
+      controlRowNode.innerHTML = `
         <td>
           <div class="item-title-desc">${item.name}</div>
-          <div style="font-size: 0.7rem; color: var(--text-muted)">Category: ${item.range}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted)">Sector: ${item.range}</div>
         </td>
         <td class="txt-center val-mono">${item.qty}</td>
-        <td class="txt-right val-mono">$${item.price.toFixed(2)}</td>
-        <td class="txt-right val-mono color-emerald-400">${item.discount}%</td>
-        <td class="txt-right val-mono">$${netAmount.toFixed(2)}</td>
+        <td class="txt-right val-mono">₹${item.price.toFixed(2)}</td>
+        <td class="txt-right val-mono" style="color: var(--emerald-500);">${item.discount}%</td>
+        <td class="txt-right val-mono">₹${netFinalLineValue.toFixed(2)}</td>
         <td class="txt-center">
-          <button onclick="deleteLineItem('${item.id}')" class="btn-delete" title="Delete Line">
+          <button onclick="deleteLineItem('${item.id}')" class="btn-delete" title="Remove Entry">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </td>
       `;
-      trackerTableBody.appendChild(dashboardRow);
+      trackerTableBody.appendChild(controlRowNode);
 
-      // 2. Render Right Printable Invoice Sheet Matrix Row
-      const sheetRow = document.createElement('tr');
-      sheetRow.innerHTML = `
+      // Create matching immutable printable sheet table row lines
+      const documentSheetRow = document.createElement('tr');
+      documentSheetRow.innerHTML = `
         <td>
           <div style="font-weight: 700; color: #0f172a;">${item.name}</div>
-          <div style="font-size: 0.7rem; color: var(--sheet-muted);">Range: ${item.range}</div>
+          <div style="font-size: 0.72rem; color: var(--sheet-muted);">Range: ${item.range}</div>
         </td>
         <td class="txt-center val-mono">${item.qty}</td>
-        <td class="txt-right val-mono">$${item.price.toFixed(2)}</td>
+        <td class="txt-right val-mono">₹${item.price.toFixed(2)}</td>
         <td class="txt-right val-mono">${item.discount > 0 ? '-' + item.discount + '%' : '0%'}</td>
-        <td class="txt-right val-mono" style="font-weight:700; color: #0f172a;">$${netAmount.toFixed(2)}</td>
+        <td class="txt-right val-mono" style="font-weight: 800; color: #0f172a;">₹${netFinalLineValue.toFixed(2)}</td>
       `;
-      sheetTableBody.appendChild(sheetRow);
+      sheetTableBody.appendChild(documentSheetRow);
     });
 
-    const finalGrandTotal = subtotalCumulative - totalDiscountCumulative;
+    const netInvoicePayableSum = subtotalAccumulator - discountAccumulator;
 
-    // Flush computed metrics to visual document targets
-    sheetSubtotal.textContent = `$${subtotalCumulative.toFixed(2)}`;
-    sheetDiscount.textContent = `-$${totalDiscountCumulative.toFixed(2)}`;
-    sheetGrandTotal.textContent = `$${finalGrandTotal.toFixed(2)}`;
+    // Flush currency calculations through to matching labels
+    sheetSubtotal.textContent = `₹${subtotalAccumulator.toFixed(2)}`;
+    sheetDiscount.textContent = `-₹${discountAccumulator.toFixed(2)}`;
+    sheetGrandTotal.textContent = `₹${netInvoicePayableSum.toFixed(2)}`;
 
-    // Manage smart visibility parameters of calculation elements
-    if (totalDiscountCumulative > 0) {
+    // Manage smart dynamic savings alert view states
+    if (discountAccumulator > 0) {
       sheetSavingsBox.style.visibility = "visible";
-      sheetSavingsValue.textContent = `$${totalDiscountCumulative.toFixed(2)}`;
+      sheetSavingsValue.textContent = `₹${discountAccumulator.toFixed(2)}`;
     } else {
       sheetSavingsBox.style.visibility = "hidden";
     }
   }
 
-  // --- Utility Notification Engine ---
-  function spawnToast(msg, variant = "info") {
+  // --- Dynamic Application Alerts System ---
+  function spawnToastNotification(msg, variant = "info") {
     const frame = document.getElementById('toast-frame');
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${variant}`;
+    const element = document.createElement('div');
+    element.className = `toast toast-${variant}`;
     
-    let icon = "fa-info-circle";
-    if (variant === "success") icon = "fa-circle-check";
-    if (variant === "danger") icon = "fa-triangle-exclamation";
+    let graphic = "fa-info-circle";
+    if (variant === "success") graphic = "fa-circle-check";
+    if (variant === "danger") graphic = "fa-triangle-exclamation";
 
-    toast.innerHTML = `
-      <i class="fa-solid ${icon}"></i>
-      <div style="font-size:0.82rem; font-weight:600;">${msg}</div>
+    element.innerHTML = `
+      <i class="fa-solid ${graphic}"></i>
+      <div style="font-size: 0.84rem; font-weight: 600;">${msg}</div>
     `;
     
-    frame.appendChild(toast);
+    frame.appendChild(element);
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
+      element.style.opacity = '0';
+      element.style.transform = 'translateY(8px)';
+      setTimeout(() => element.remove(), 300);
+    }, 3200);
   }
 
-  // --- Theme Toggle Controller ---
+  // --- Dark/Light Mode Theme Toggle Control Switch ---
   btnThemeToggle.addEventListener('click', () => {
-    const htmlNode = document.documentElement;
-    const currentTheme = htmlNode.getAttribute('data-theme');
-    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    htmlNode.setAttribute('data-theme', targetTheme);
-    spawnToast(`Switched interface mode context to ${targetTheme}.`, "info");
+    const rootNode = document.documentElement;
+    const activeState = rootNode.getAttribute('data-theme');
+    const invertedState = activeState === 'dark' ? 'light' : 'dark';
+    
+    rootNode.setAttribute('data-theme', invertedState);
+    spawnToastNotification(`Display mode converted to ${invertedState} context view.`, "info");
   });
 
-  // Initial Boot Sequence Configuration Execution
-  renderInterfaceMatrix();
+  // Execute initial runtime compilation setup
+  compileMatrixCalculations();
 });
