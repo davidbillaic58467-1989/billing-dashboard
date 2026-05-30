@@ -1,231 +1,253 @@
-// ==========================================================================
-// S Vairasamy Billing Control Engine
-// Computation logic structured for Indian Rupee (₹) and Category Tracking
-// ==========================================================================
+// Local In-Memory Matrix Array State
+let invoiceItems = [];
 
+// DOM Infrastructure Selectors
+const elements = {
+    themeToggle: document.getElementById('btn-theme-toggle'),
+    invIdInput: document.getElementById('input-inv-id'),
+    clientNameInput: document.getElementById('input-client-name'),
+    clientAddrInput: document.getElementById('input-client-addr'),
+    
+    // Add Item Parameters
+    itemRange: document.getElementById('input-item-range'),
+    itemName: document.getElementById('input-item-name'),
+    itemQty: document.getElementById('input-item-qty'),
+    itemMrp: document.getElementById('input-item-mrp'),
+    itemDap: document.getElementById('input-item-dap'),
+    itemDiscount: document.getElementById('input-item-discount'),
+    btnAddItem: document.getElementById('btn-add-item'),
+    
+    // Live View Pilled Preview Counters
+    previewEffPrice: document.getElementById('preview-eff-price'),
+    previewItemTotal: document.getElementById('preview-item-total'),
+    
+    // Lists Tables Pipelines
+    queueCountBadge: document.getElementById('queue-count-badge'),
+    trackerTableBody: document.getElementById('tracker-table-body'),
+    tableEmptyState: document.getElementById('table-empty-state'),
+    
+    // Mirror Sheet Displays
+    sheetInvId: document.getElementById('sheet-inv-id'),
+    sheetClientName: document.getElementById('sheet-client-name'),
+    sheetClientAddr: document.getElementById('sheet-client-addr'),
+    sheetTableBody: document.getElementById('sheet-table-body'),
+    sheetSavingsBox: document.getElementById('sheet-savings-box'),
+    sheetSavingsValue: document.getElementById('sheet-savings-value'),
+    sheetSubtotal: document.getElementById('sheet-subtotal'),
+    sheetDiscount: document.getElementById('sheet-discount'),
+    sheetGrandTotal: document.getElementById('sheet-grand-total'),
+    controlPaymentMode: document.getElementById('control-payment-mode'),
+    sheetPaymentModeDisplay: document.getElementById('sheet-payment-mode-display'),
+    toastFrame: document.getElementById('toast-frame')
+};
+
+// Application Init Setup 
 document.addEventListener('DOMContentLoaded', () => {
-  
-  // Initial Seed State Configuration (Indian Rupee Currency Context)
-  let invoiceItems = [
-    {
-      id: "seed_1",
-      range: "Wellness & Healthcare",
-      name: "Ashwagandha Premium Capsules",
-      qty: 5,
-      price: 340.00,
-      discount: 10
-    },
-    {
-      id: "seed_2",
-      range: "Oralcare",
-      name: "Ayurvedic Clove Gel Toothpaste",
-      qty: 10,
-      price: 95.00,
-      discount: 5
-    }
-  ];
+    registerLiveSynchronization();
+    calculateLiveInputPills();
+});
 
-  // Interface Input Component Anchors
-  const inputInvId = document.getElementById('input-inv-id');
-  const inputClientName = document.getElementById('input-client-name');
-  const inputClientAddr = document.getElementById('input-client-addr');
-
-  const sheetInvId = document.getElementById('sheet-inv-id');
-  const sheetClientName = document.getElementById('sheet-client-name');
-  const sheetClientAddr = document.getElementById('sheet-client-addr');
-
-  const inputItemRange = document.getElementById('input-item-range');
-  const inputItemName = document.getElementById('input-item-name');
-  const inputItemQty = document.getElementById('input-item-qty');
-  const inputItemPrice = document.getElementById('input-item-price');
-  const inputItemDiscount = document.getElementById('input-item-discount');
-  const btnAddItem = document.getElementById('btn-add-item');
-
-  const trackerTableBody = document.getElementById('tracker-table-body');
-  const sheetTableBody = document.getElementById('sheet-table-body');
-  const tableEmptyState = document.getElementById('table-empty-state');
-  const queueCountBadge = document.getElementById('queue-count-badge');
-
-  const sheetSubtotal = document.getElementById('sheet-subtotal');
-  const sheetDiscount = document.getElementById('sheet-discount');
-  const sheetGrandTotal = document.getElementById('sheet-grand-total');
-  const sheetSavingsBox = document.getElementById('sheet-savings-box');
-  const sheetSavingsValue = document.getElementById('sheet-savings-value');
-
-  const controlPaymentMode = document.getElementById('control-payment-mode');
-  const sheetPaymentModeDisplay = document.getElementById('sheet-payment-mode-display');
-  const btnThemeToggle = document.getElementById('btn-theme-toggle');
-
-  // --- Live Synchronization Event Framework ---
-  inputInvId.addEventListener('input', (e) => sheetInvId.textContent = e.target.value || 'INV-XXXX');
-  inputClientName.addEventListener('input', (e) => sheetClientName.textContent = e.target.value || 'Buyer Identity');
-  inputClientAddr.addEventListener('input', (e) => sheetClientAddr.textContent = e.target.value || 'Delivery Destination Location Address');
-
-  // Action Logic: Routing Payment Mode Selections Cleanly
-  controlPaymentMode.addEventListener('change', (e) => {
-    const selectedMode = e.target.value;
-    let formattedLabel = "2. UPI";
-
-    if (selectedMode === "Net-Banking") formattedLabel = "1. Net-Banking";
-    if (selectedMode === "By-Cash") formattedLabel = "3. By-Cash";
-
-    sheetPaymentModeDisplay.textContent = formattedLabel;
-    spawnToastNotification(`Payment setup set to: ${selectedMode}`, "success");
-  });
-
-  // --- Dynamic Table Line Append Methods ---
-  btnAddItem.addEventListener('click', () => {
-    const range = inputItemRange.value;
-    const name = inputItemName.value.trim();
-    const qty = parseInt(inputItemQty.value) || 0;
-    const price = parseFloat(inputItemPrice.value) || 0;
-    const discount = parseInt(inputItemDiscount.value) || 0;
-
-    if (!name) {
-      spawnToastNotification("Please supply an accurate product title name.", "danger");
-      return;
-    }
-    if (qty <= 0 || price < 0) {
-      spawnToastNotification("Invalid quantity or pricing value fields specified.", "danger");
-      return;
-    }
-
-    const entryObject = {
-      id: 'prod_' + Date.now(),
-      range,
-      name,
-      qty,
-      price,
-      discount
-    };
-
-    invoiceItems.push(entryObject);
-    compileMatrixCalculations();
-    spawnToastNotification(`Added "${name}" into system matrices.`, "success");
-
-    // Reset localized product elements fields safely
-    inputItemName.value = '';
-    inputItemQty.value = '1';
-    inputItemPrice.value = '0.00';
-    inputItemDiscount.value = '0';
-  });
-
-  window.deleteLineItem = (targetId) => {
-    invoiceItems = invoiceItems.filter(item => item.id !== targetId);
-    compileMatrixCalculations();
-    spawnToastNotification("Product item detached from document computations.", "danger");
-  };
-
-  // --- Core Calculation Matrix Compiler (Indian Rupee Symbol Integrated) ---
-  function compileMatrixCalculations() {
-    trackerTableBody.innerHTML = '';
-    sheetTableBody.innerHTML = '';
-
-    if (invoiceItems.length === 0) {
-      tableEmptyState.style.display = 'flex';
-      queueCountBadge.textContent = "0 Items Selected";
-      queueCountBadge.className = "badge";
-    } else {
-      tableEmptyState.style.display = 'none';
-      queueCountBadge.textContent = `${invoiceItems.length} Products Active`;
-      queueCountBadge.className = "badge badge-info";
-    }
-
-    let subtotalAccumulator = 0;
-    let discountAccumulator = 0;
-
-    invoiceItems.forEach(item => {
-      const lineGrossAmount = item.qty * item.price;
-      const calculatedDeduction = lineGrossAmount * (item.discount / 100);
-      const netFinalLineValue = lineGrossAmount - calculatedDeduction;
-
-      subtotalAccumulator += lineGrossAmount;
-      discountAccumulator += calculatedDeduction;
-
-      // Create interactive tracker row entries
-      const controlRowNode = document.createElement('tr');
-      controlRowNode.className = "item-row-animate";
-      controlRowNode.innerHTML = `
-        <td>
-          <div class="item-title-desc">${item.name}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted)">Sector: ${item.range}</div>
-        </td>
-        <td class="txt-center val-mono">${item.qty}</td>
-        <td class="txt-right val-mono">₹${item.price.toFixed(2)}</td>
-        <td class="txt-right val-mono" style="color: var(--emerald-500);">${item.discount}%</td>
-        <td class="txt-right val-mono">₹${netFinalLineValue.toFixed(2)}</td>
-        <td class="txt-center">
-          <button onclick="deleteLineItem('${item.id}')" class="btn-delete" title="Remove Entry">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        </td>
-      `;
-      trackerTableBody.appendChild(controlRowNode);
-
-      // Create matching immutable printable sheet table row lines
-      const documentSheetRow = document.createElement('tr');
-      documentSheetRow.innerHTML = `
-        <td>
-          <div style="font-weight: 700; color: #0f172a;">${item.name}</div>
-          <div style="font-size: 0.72rem; color: var(--sheet-muted);">Range: ${item.range}</div>
-        </td>
-        <td class="txt-center val-mono">${item.qty}</td>
-        <td class="txt-right val-mono">₹${item.price.toFixed(2)}</td>
-        <td class="txt-right val-mono">${item.discount > 0 ? '-' + item.discount + '%' : '0%'}</td>
-        <td class="txt-right val-mono" style="font-weight: 800; color: #0f172a;">₹${netFinalLineValue.toFixed(2)}</td>
-      `;
-      sheetTableBody.appendChild(documentSheetRow);
+// Setup Configuration Listeners for Instant A4 Copy Mirroring
+function registerLiveSynchronization() {
+    elements.themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', targetTheme);
     });
 
-    const netInvoicePayableSum = subtotalAccumulator - discountAccumulator;
+    elements.invIdInput.addEventListener('input', (e) => elements.sheetInvId.textContent = e.target.value);
+    elements.clientNameInput.addEventListener('input', (e) => elements.sheetClientName.textContent = e.target.value);
+    elements.clientAddrInput.addEventListener('input', (e) => elements.sheetClientAddr.textContent = e.target.value);
+    
+    // Interactive changes mapping for dynamic calculation matrix preview row
+    [elements.itemQty, elements.itemMrp, elements.itemDap, elements.itemDiscount].forEach(input => {
+        input.addEventListener('input', calculateLiveInputPills);
+    });
 
-    // Flush currency calculations through to matching labels
-    sheetSubtotal.textContent = `₹${subtotalAccumulator.toFixed(2)}`;
-    sheetDiscount.textContent = `-₹${discountAccumulator.toFixed(2)}`;
-    sheetGrandTotal.textContent = `₹${netInvoicePayableSum.toFixed(2)}`;
+    elements.controlPaymentMode.addEventListener('change', (e) => {
+        elements.sheetPaymentModeDisplay.textContent = e.target.value;
+    });
 
-    // Manage smart dynamic savings alert view states
-    if (discountAccumulator > 0) {
-      sheetSavingsBox.style.visibility = "visible";
-      sheetSavingsValue.textContent = `₹${discountAccumulator.toFixed(2)}`;
-    } else {
-      sheetSavingsBox.style.visibility = "hidden";
+    elements.btnAddItem.addEventListener('click', parseAndAddLineItem);
+}
+
+// Live calculation mechanics logic inside input controller
+function calculateLiveInputPills() {
+    const mrp = parseFloat(elements.itemMrp.value) || 0;
+    const dap = parseFloat(elements.itemDap.value) || 0;
+    const qty = parseInt(elements.itemQty.value) || 1;
+    const discPercent = parseFloat(elements.itemDiscount.value) || 0;
+
+    // Base target value for discount computations defaults to DAP value
+    const baseTarget = dap > 0 ? dap : mrp;
+    const computedEffectiveUnit = baseTarget - (baseTarget * (discPercent / 100));
+    const computedGrossTotal = computedEffectiveUnit * qty;
+
+    elements.previewEffPrice.textContent = `₹${computedEffectiveUnit.toFixed(2)}`;
+    elements.previewItemTotal.textContent = `₹${computedGrossTotal.toFixed(2)}`;
+}
+
+// Validation, Capture state generation lifecycle
+function parseAndAddLineItem() {
+    const range = elements.itemRange.value;
+    const name = elements.itemName.value.trim();
+    const qty = parseInt(elements.itemQty.value) || 0;
+    const mrp = parseFloat(elements.itemMrp.value) || 0;
+    const dap = parseFloat(elements.itemDap.value) || 0;
+    const discount = parseFloat(elements.itemDiscount.value) || 0;
+
+    if (!name) {
+        triggerToast("⚠️ Product Specific Title missing!");
+        return;
     }
-  }
+    if (qty <= 0) {
+        triggerToast("⚠️ Quantity metric must be at least 1.");
+        return;
+    }
+    if (mrp <= 0 && dap <= 0) {
+        triggerToast("⚠️ Provide either a valid MRP or DAP value.");
+        return;
+    }
 
-  // --- Dynamic Application Alerts System ---
-  function spawnToastNotification(msg, variant = "info") {
-    const frame = document.getElementById('toast-frame');
+    // Mathematical Object Definition
+    const baseRate = dap > 0 ? dap : mrp;
+    const discountedRate = baseRate - (baseRate * (discount / 100));
+    const finalRowAmount = discountedRate * qty;
+    
+    // Dynamic absolute margin calculations savings per row item
+    const grossMrpValueTotal = mrp * qty;
+    const absoluteSavingsEarned = grossMrpValueTotal - finalRowAmount;
+
+    const lineItem = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        range,
+        name,
+        qty,
+        mrp,
+        dap,
+        discount,
+        finalRowAmount,
+        grossMrpValueTotal,
+        absoluteSavingsEarned
+    };
+
+    invoiceItems.push(lineItem);
+    triggerToast(`✨ Added: ${name}`);
+    clearInputBlockFields();
+    renderDataMatrixPipelines();
+}
+
+// Reset context parameters excluding selections
+function clearInputBlockFields() {
+    elements.itemName.value = '';
+    elements.itemQty.value = '1';
+    elements.itemMrp.value = '0.00';
+    elements.itemDap.value = '0.00';
+    elements.itemDiscount.value = '0';
+    calculateLiveInputPills();
+}
+
+// Master rendering core engine
+function renderDataMatrixPipelines() {
+    // Sync table state arrays length configuration parameters
+    elements.queueCountBadge.textContent = `${invoiceItems.length} Item${invoiceItems.length === 1 ? '' : 's'}`;
+    
+    if(invoiceItems.length === 0) {
+        elements.tableEmptyState.style.display = "flex";
+        elements.trackerTableBody.innerHTML = "";
+        elements.sheetTableBody.innerHTML = "";
+        elements.sheetSubtotal.textContent = "₹0.00";
+        elements.sheetDiscount.textContent = "-₹0.00";
+        elements.sheetGrandTotal.textContent = "₹0.00";
+        elements.sheetSavingsBox.style.visibility = "hidden";
+        return;
+    }
+    
+    elements.tableEmptyState.style.display = "none";
+    
+    let htmlQueue = "";
+    let htmlSheet = "";
+    
+    let totalGrossMRPValue = 0;
+    let totalAbsoluteSavingsValue = 0;
+    let grandNetPayableTotal = 0;
+
+    invoiceItems.forEach((item) => {
+        totalGrossMRPValue += item.grossMrpValueTotal;
+        totalAbsoluteSavingsValue += item.absoluteSavingsEarned;
+        grandNetPayableTotal += item.finalRowAmount;
+
+        // Populate Table Display
+        htmlQueue += `
+            <tr>
+                <td>
+                    <strong>${item.name}</strong><br>
+                    <small style="color: var(--text-muted); font-size:0.75rem;">${item.range}</small>
+                </td>
+                <td class="txt-right var-mono">₹${item.mrp.toFixed(2)}</td>
+                <td class="txt-right var-mono">₹${item.dap.toFixed(2)}</td>
+                <td class="txt-center">${item.qty}</td>
+                <td class="txt-right text-danger">${item.discount}%</td>
+                <td class="txt-right var-mono" style="font-weight:700;">₹${item.finalRowAmount.toFixed(2)}</td>
+                <td class="txt-center">
+                    <button onclick="removeLineItem('${item.id}')" class="btn-danger-icon" title="Delete Row">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+
+        // Populate dynamic real-time A4 printable rendering sheet 
+        htmlSheet += `
+            <tr>
+                <td>
+                    <div style="font-weight: 700; color: #0f172a;">${item.name}</div>
+                    <div class="inv-item-range-lbl">${item.range}</div>
+                </td>
+                <td class="txt-right">₹${item.mrp.toFixed(2)}</td>
+                <td class="txt-right">₹${item.dap.toFixed(2)}</td>
+                <td class="txt-center">${item.qty}</td>
+                <td class="txt-right" style="color: #b91c1c;">${item.discount}%</td>
+                <td class="txt-right" style="font-weight: 700; color: #0f172a;">₹${item.finalRowAmount.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+
+    elements.trackerTableBody.innerHTML = htmlQueue;
+    elements.sheetTableBody.innerHTML = htmlSheet;
+
+    // Apply calculated metrics safely over DOM components
+    elements.sheetSubtotal.textContent = `₹${totalGrossMRPValue.toFixed(2)}`;
+    elements.sheetDiscount.textContent = `-₹${totalAbsoluteSavingsValue.toFixed(2)}`;
+    elements.sheetGrandTotal.textContent = `₹${grandNetPayableTotal.toFixed(2)}`;
+
+    // Toggle and manage the Margin Scheme Savings Alert Display component
+    if (totalAbsoluteSavingsValue > 0) {
+        elements.sheetSavingsValue.textContent = `₹${totalAbsoluteSavingsValue.toFixed(2)}`;
+        elements.sheetSavingsBox.style.visibility = "visible";
+    } else {
+        elements.sheetSavingsBox.style.visibility = "hidden";
+    }
+}
+
+// Slice out target line entry sequence arrays row reference
+function removeLineItem(targetId) {
+    invoiceItems = invoiceItems.filter(item => item.id !== targetId);
+    triggerToast("🗑️ Item removed from queue.");
+    renderDataMatrixPipelines();
+}
+
+// Lightweight Toast Alert Engine
+function triggerToast(msg) {
     const element = document.createElement('div');
-    element.className = `toast toast-${variant}`;
+    element.className = 'toast';
+    element.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${msg}</span>`;
+    elements.toastFrame.appendChild(element);
     
-    let graphic = "fa-info-circle";
-    if (variant === "success") graphic = "fa-circle-check";
-    if (variant === "danger") graphic = "fa-triangle-exclamation";
-
-    element.innerHTML = `
-      <i class="fa-solid ${graphic}"></i>
-      <div style="font-size: 0.84rem; font-weight: 600;">${msg}</div>
-    `;
-    
-    frame.appendChild(element);
     setTimeout(() => {
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(8px)';
-      setTimeout(() => element.remove(), 300);
-    }, 3200);
-  }
-
-  // --- Dark/Light Mode Theme Toggle Control Switch ---
-  btnThemeToggle.addEventListener('click', () => {
-    const rootNode = document.documentElement;
-    const activeState = rootNode.getAttribute('data-theme');
-    const invertedState = activeState === 'dark' ? 'light' : 'dark';
-    
-    rootNode.setAttribute('data-theme', invertedState);
-    spawnToastNotification(`Display mode converted to ${invertedState} context view.`, "info");
-  });
-
-  // Execute initial runtime compilation setup
-  compileMatrixCalculations();
-});
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(10px)';
+        element.style.transition = 'transform 0.3s, opacity 0.3s';
+        setTimeout(() => element.remove(), 300);
+    }, 2500);
+}
