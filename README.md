@@ -1,4 +1,4 @@
-# billing-dashboard# S Vairasamy - Premium Billing System 🧾✨
+# billing-dashboard# SRS-Premium Billing System 🧾✨
 
 An elegant, client-side dynamic invoice generation system and billing dashboard designed for retail, wholesale, and multi-sector distribution management. Engineered specifically for operations dealing across multiple core product ranges (Wellness, Skincare, Personalcare, Oralcare, and Homecare).
 
