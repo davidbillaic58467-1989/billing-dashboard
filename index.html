@@ -79,14 +79,22 @@
               <input type="number" id="input-item-qty" min="1" value="1">
             </div>
             <div class="form-group">
-              <label>Rate / Price (₹)</label>
-              <input type="number" id="input-item-price" min="0" step="0.01" value="0.00">
+              <label>MRP / Unit (₹)</label>
+              <input type="number" id="input-item-mrp" min="0" step="0.01" value="0.00">
+            </div>
+            <div class="form-group">
+              <label>DAP / Unit (₹)</label>
+              <input type="number" id="input-item-dap" min="0" step="0.01" value="0.00">
             </div>
             <div class="form-group">
               <label>Discount (%)</label>
               <input type="number" id="input-item-discount" min="0" max="100" value="0">
             </div>
-            <div class="form-group" style="justify-content: flex-end;">
+            <div class="form-group col-span-3 calculated-row-preview">
+              <div class="preview-metric-pill">Effective Price: <span id="preview-eff-price">₹0.00</span></div>
+              <div class="preview-metric-pill">Item Total: <span id="preview-item-total">₹0.00</span></div>
+            </div>
+            <div class="form-group col-span-3" style="justify-content: flex-end; margin-top: 8px;">
               <button id="btn-add-item" class="btn btn-primary btn-full">
                 <i class="fa-solid fa-plus"></i> Add Item
               </button>
@@ -107,16 +115,16 @@
               <table class="items-table" id="tracker-table">
                 <thead>
                   <tr>
-                    <th>Product details</th>
+                    <th>Product Details</th>
+                    <th class="txt-right">MRP</th>
+                    <th class="txt-right">DAP</th>
                     <th class="txt-center">Qty</th>
-                    <th class="txt-right">Rate</th>
                     <th class="txt-right">Discount</th>
                     <th class="txt-right">Total</th>
                     <th class="txt-center">Action</th>
                   </tr>
                 </thead>
-                <tbody id="tracker-table-body">
-                  </tbody>
+                <tbody id="tracker-table-body"></tbody>
               </table>
               <div class="empty-state" id="table-empty-state">
                 <i class="fa-solid fa-box-open"></i>
@@ -208,36 +216,36 @@
               <table class="inv-preview-table">
                 <thead>
                   <tr>
-                    <th style="width: 45%;">Item Description</th>
-                    <th class="txt-center" style="width: 10%;">Qty</th>
-                    <th class="txt-right" style="width: 15%;">Rate</th>
+                    <th style="width: 35%;">Item Description</th>
+                    <th class="txt-right" style="width: 12%;">MRP</th>
+                    <th class="txt-right" style="width: 12%;">DAP</th>
+                    <th class="txt-center" style="width: 8%;">Qty</th>
                     <th class="txt-right" style="width: 15%;">Discount</th>
-                    <th class="txt-right" style="width: 15%;">Amount</th>
+                    <th class="txt-right" style="width: 18%;">Amount</th>
                   </tr>
                 </thead>
-                <tbody id="sheet-table-body">
-                  </tbody>
+                <tbody id="sheet-table-body"></tbody>
               </table>
 
               <div class="inv-summary-block">
                 <div class="savings-alert-box" id="sheet-savings-box" style="visibility: hidden;">
                   <div class="savings-content">
                     <i class="fa-solid fa-tags"></i>
-                    <div>Discount Scheme savings applied! You saved <strong id="sheet-savings-value">₹0.00</strong>.</div>
+                    <div>Total Margin Savings Applied! You saved <strong id="sheet-savings-value">₹0.00</strong>.</div>
                   </div>
                 </div>
 
                 <div class="totals-table">
                   <div class="totals-row">
-                    <span>Subtotal:</span>
+                    <span>Gross MRP Value:</span>
                     <span id="sheet-subtotal">₹0.00</span>
                   </div>
                   <div class="totals-row discount-highlight">
-                    <span>Total Discount:</span>
+                    <span>Total Deal Discount:</span>
                     <span id="sheet-discount">-₹0.00</span>
                   </div>
                   <div class="totals-row grand-total">
-                    <span>Grand Total:</span>
+                    <span>Grand Total (Net Payable):</span>
                     <span id="sheet-grand-total">₹0.00</span>
                   </div>
                   
